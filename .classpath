@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="robotium-solo/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_60"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/android.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/htmllexer.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/htmlparser.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/httpunit-1.7.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/jaxen-1.1-beta-6.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/junit.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/org.hamcrest.core.source_1.3.0.v201303031735.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="robotium-solo/libs/xmemcached-2.0.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
