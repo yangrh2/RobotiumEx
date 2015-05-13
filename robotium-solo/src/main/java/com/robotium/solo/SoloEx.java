@@ -1,15 +1,9 @@
 package com.robotium.solo;
 
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,41 +11,23 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
-
-import junit.framework.Assert;
-
 import com.robotium.solo.Solo;
-import com.xracoon.rato.DateUtil;
 import com.xracoon.rato.LogEx;
 import com.xracoon.rato.Timer;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.SystemClock;
-import android.test.ActivityInstrumentationTestCase2;
-import android.text.InputType;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AbsListView;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -319,10 +295,10 @@ public class SoloEx extends Solo {
 
 		if (view instanceof ScrollView) {
 			if (allTheWay) {
-				scroller.scrollScrollViewAllTheWay((ScrollView) view, direction);
+				scroller.scrollViewAllTheWay((ScrollView) view, direction);
 				return false;
 			} else {
-				return scroller.scrollScrollView((ScrollView)view, direction);
+				return scroller.scrollView((ScrollView)view, direction);
 			}
 		}
 		if(view instanceof WebView){
