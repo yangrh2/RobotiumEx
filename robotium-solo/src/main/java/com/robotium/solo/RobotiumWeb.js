@@ -278,3 +278,10 @@ function promptText(element, range) {
 function finished(){
 	prompt('robotium-finished');
 }
+
+function promptHtml(){
+	try{
+		prompt('<<[[{{HTML}}]]>>'+document.body.innerHTML+'<<[[{{HTML}}]]>>');	
+	}catch(ignored){}
+	finished();
+}

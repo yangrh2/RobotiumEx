@@ -83,6 +83,21 @@ class WebUtils {
 		return webElementsAsTextViews;		
 	}
 
+	
+	public String getHtml()
+	{
+		boolean javaScriptWasExecuted = executeJavaScriptFunction("promptHtml();");
+		if(javaScriptWasExecuted){
+			return webElementCreator.getHtml();
+		}
+		return null;
+	}
+	public boolean invokeJs(String js)
+	{
+		boolean javaScriptWasExecuted = executeJavaScriptFunction(js);
+		return javaScriptWasExecuted;
+	}
+	
 	/**
 	 * Returns an ArrayList of WebElements currently shown in the active WebView.
 	 * 

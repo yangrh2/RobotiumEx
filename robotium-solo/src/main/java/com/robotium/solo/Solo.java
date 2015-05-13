@@ -2809,7 +2809,12 @@ public class Solo {
 	 */
 
 	public void finishOpenedActivities(){
-		activityUtils.finishOpenedActivities();
+//		try{
+			activityUtils.finishOpenedActivities();
+//		}catch(Exception e)
+//		{
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

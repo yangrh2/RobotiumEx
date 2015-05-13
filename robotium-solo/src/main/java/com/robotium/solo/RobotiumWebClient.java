@@ -70,11 +70,15 @@ class RobotiumWebClient extends WebChromeClient{
 
 	@Override
 	public boolean onJsPrompt(WebView view, String url, String message,	String defaultValue, JsPromptResult r) {
-
-		if(message != null && (message.contains(";,") || message.contains("robotium-finished"))){
-
+		
+		if(message != null && (message.contains(";,") || message.contains("robotium-finished") || message.startsWith("<<[[{{HTML}}]]>>"))){	
 			if(message.equals("robotium-finished")){
 				webElementCreator.setFinished(true);
+			}
+			else if(message.startsWith("<<[[{{HTML}}]]>>"))
+			{
+				webElementCreator.setHtml(message.substring(16,message.length()-16));
+				//LogEx.i("prompt:"+message);
 			}
 			else{
 				webElementCreator.createWebElementAndAddInList(message, view);

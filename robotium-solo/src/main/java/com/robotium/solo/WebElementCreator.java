@@ -18,6 +18,7 @@ import android.webkit.WebView;
 class WebElementCreator {
 
 	private List<WebElement> webElements;
+	private String html;
 	private Sleeper sleeper;
 	private boolean isFinished = false;
 
@@ -178,4 +179,13 @@ class WebElementCreator {
 		return false;
 	}
 
+	public String getHtml() {
+		waitForWebElementsToBeCreated();
+		return html;
+	}
+
+	public void setHtml(String html) {
+		this.html = html;
+	}
+	
 }
