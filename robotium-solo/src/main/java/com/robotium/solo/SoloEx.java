@@ -14,7 +14,9 @@ import java.util.regex.Pattern;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+
 import com.robotium.solo.Solo;
+import com.xracoon.rato.LayoutUtils;
 import com.xracoon.rato.LogEx;
 import com.xracoon.rato.Timer;
 
@@ -371,14 +373,12 @@ public class SoloEx extends Solo {
 		size[1]=dm.heightPixels;
 		return size;
 	}
+	
 	public int[] getPos(View view)
 	{
-		int [] size=new int[2];
-		view.getLocationOnScreen(size);
-		size[0]=size[0]+view.getWidth()/2;
-		size[1]=size[1]+view.getHeight()/2;
-		return size;
+		return LayoutUtils.getCenter(view);
 	}
+	
 	public boolean nearPos(int x1,int y1,int x2, int y2,int diffx,int diffy)
 	{
 		int dx=Math.abs(x2-x1);

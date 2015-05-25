@@ -13,7 +13,7 @@ import android.view.View;
 
 public class ImageUtils {
 	
-	static public int getAvgColor(Bitmap bitmap,int sampleCount, double[] rect)
+	static public int getAvgColor(View view,int sampleCount, double[] rect)
 	{
 		long alpha=0;
 		long red=0;
@@ -21,27 +21,11 @@ public class ImageUtils {
 		long blue=0;
 		int realCount=0;
 		
-		int w=bitmap.getWidth();
-		int h=bitmap.getHeight();
-		Random rand=new Random();
+		PixSampler sampler=new PixSampler(view,rect);
 		
-		int left=0;
-		int right=0;
-		int up=0;
-		int down=0;
-		if(rect!=null && rect.length>=4)
-		{
-			left=(int) (rect[0]*w);
-			up=(int) (rect[1]*h);
-			right=(int) (rect[2]*w);
-			down=(int) (rect[3]*h);
-		}
 		for(int i=0; i<sampleCount; i++)
 		{
-			int x=left+rand.nextInt(w-left-right);
-			int y=up+rand.nextInt(h-up-down);
-			
-			int c=bitmap.getPixel(x, y);
+			int c=sampler.getPixRandom();
 			int ialpha=c >>> 24 ;
 			int ired=(c >> 16) & 0xFF ;
 			int igreen=(c >> 8) & 0xFF ;
@@ -64,46 +48,10 @@ public class ImageUtils {
 	}
 	
 	
-	static public int getMainColor(Bitmap bitmap, int sampleCount, double[] rect, int[] excColor)
+	static public int getMainColor(View view, int sampleCount, double[] rect, int[] excColor)
 	{
-		int w=bitmap.getWidth();
-		int h=bitmap.getHeight();
-		Random rand=new Random();
-		
-		int left=0;
-		int right=0;
-		int up=0;
-		int down=0;
-		if(rect!=null && rect.length>=4)
-		{
-			if(Math.abs(rect[0])>1)
-				left=(int) rect[0];
-			else
-				left=(int) (rect[0]*w);
-			
-			if(Math.abs(rect[1])>1)
-				up=(int) rect[1];
-			else
-				up=(int) (rect[1]*h);
-			
-			if(Math.abs(rect[2])>1)
-				right=(int) rect[2];
-			else
-				right=(int) (rect[2]*w);
-			
-			if(Math.abs(rect[3])>1)
-				down=(int) rect[3];
-			else
-				down=(int) (rect[3]*h);
-		
-			
-			if(left<0)
-				left=w+left;
-			if(up<0)
-				up=h+up;
-			LogEx.i("width:"+w+",  height: "+h+",  left: "+left+", top: "+up+",  right:"+right+", down:"+down);
-		}
-		
+		PixSampler sampler=new PixSampler(view,rect);
+
 		int diff=32;
 		int shift=16;
 		Map<Integer, Integer> colorMap=new TreeMap<Integer,Integer>();
@@ -112,31 +60,33 @@ public class ImageUtils {
 		{	
 			excSet=new TreeSet<Integer>();
 			for(int c: excColor)
-				excSet.add(normailizeColor(c, diff, shift));
+			{
+				int c1=normailizeColor(c, diff, shift);
+				excSet.add(c1);
+				//LogEx.i("exclude: "+getColor(c)+"=>"+getColor(c1));
+			}
 		}
 		
 		for(int i=0; i<sampleCount; i++)
 		{
-			int x=left+rand.nextInt(w-left-right);
-			int y=up+rand.nextInt(h-up-down);
-			
-			int c=bitmap.getPixel(x, y);
+			int c=sampler.getPixRandom();
 //			if((c >>>24 )<255)
 //				continue;
 			
-			c=normailizeColor(c,diff,shift);
-			if(excSet!=null&& excSet.contains(c))
+			int c1=normailizeColor(c,diff,shift);
+			//LogEx.i("skiped : "+getColor(c)+"=>"+getColor(c1));
+			if(excSet!=null&& excSet.contains(c1))
 				continue;
 			
-			if(colorMap.containsKey(c))
-				colorMap.put(c, colorMap.get(c)+1);
+			if(colorMap.containsKey(c1))
+				colorMap.put(c1, colorMap.get(c1)+1);
 			else
-				colorMap.put(c, 1);
+				colorMap.put(c1, 1);
 		}
 		
 		int max=-1;
 		int maxc=-1;
-		
+		//LogEx.i("color groups: "+colorMap.size());
 		for(int i: colorMap.keySet())
 		{
 			int icount=colorMap.get(i);
@@ -151,9 +101,48 @@ public class ImageUtils {
 		return maxc;
 	}
 	
+
+	static public boolean existColor(View view, int color,int points, COLORRANGE range,  int sample,  int diff,  double [] rect)
+	{
+		PixSampler sampler=new PixSampler(view,rect);
+		
+		int pcount=1;
+		for(int i=0; i<sample; i++)
+		{
+			int c=sampler.getPixRandom();
+			
+			if(nearColor(color,c,diff))
+			{
+				//LogEx.i("equal "+getColor(color)+": "+getColor(c));
+				pcount++;
+			}
+			else if(range==COLORRANGE.DARKKER && isAllDarker(c,color))
+			{
+				//LogEx.i("dark "+getColor(color)+": "+getColor(c) );
+				pcount++;
+			}
+			else if(range==COLORRANGE.LIGHTTER && isAllLightter(c,color))
+			{
+				//LogEx.i("light "+getColor(color)+": "+getColor(c) );
+				pcount++;
+			}
+			
+			if(pcount>=points)
+				break;
+		}
+		
+		LogEx.i("exist points: "+pcount+",  need "+points);
+		return pcount>=points;
+	}
+	
 	static public boolean nearColor(View view, int color, int sample,  int diff,  double [] rect, int [] excColors)
 	{
-		int mcolor=getMainColor(getBitmap(view),sample,rect,excColors);
+		int mcolor=getMainColor(view,sample,rect,excColors);
+		return nearColor(mcolor,color,diff);
+	}
+	
+	static public boolean nearColor(int mcolor,int color, int diff)
+	{
 		int ired=(mcolor >> 16) & 0xFF ;
 		int igreen=(mcolor >> 8) & 0xFF ;
 		int iblue=mcolor & 0xFF;
@@ -165,13 +154,37 @@ public class ImageUtils {
 		int dr=Math.abs(ired-tred);
 		int dg=Math.abs(igreen-tgreen);
 		int db=Math.abs(iblue-tblue);
-		LogEx.i("deta reg: "+dr+",  deta green: "+dg+",  deta blue: "+db);
+		//LogEx.i("main reg: "+ired+",  main green: "+igreen+",  main blue: "+iblue);
+		//LogEx.i("deta reg: "+dr+",  deta green: "+dg+",  deta blue: "+db);
 		return dr<=diff && dg<=diff && db<=diff;
+	}
+	
+	static public boolean isAllDarker(int c1, int c2)
+	{
+		int ired=(c1 >> 16) & 0xFF ;
+		int igreen=(c1 >> 8) & 0xFF ;
+		int iblue=c1 & 0xFF;
+			
+		int tred=(c2 >> 16) & 0xFF ;
+		int tgreen=(c2 >> 8) & 0xFF ;
+		int tblue=c2 & 0xFF;
+		return  (ired-tred)<=0 && (igreen-tgreen)<=0 && (iblue-tblue)<=0;
+	}
+	static public boolean isAllLightter(int c1, int c2)
+	{
+		int ired=(c1 >> 16) & 0xFF ;
+		int igreen=(c1 >> 8) & 0xFF ;
+		int iblue=c1 & 0xFF;
+			
+		int tred=(c2 >> 16) & 0xFF ;
+		int tgreen=(c2 >> 8) & 0xFF ;
+		int tblue=c2 & 0xFF;
+		return  (ired-tred)>=0 && (igreen-tgreen)>=0 && (iblue-tblue)>=0;
 	}
 	
 	static public int normailizeElem(int icolor, int diff,int shift)
 	{
-		return Math.max(Math.min(icolor+shift,255),0)/diff*diff;
+		return Math.max(Math.min(((int)((icolor+shift)/diff))*diff,255),0);
 	}
 	static public int normailizeColor(int c,int diff, int shift)
 	{
@@ -187,34 +200,17 @@ public class ImageUtils {
 		return c;
 	}
 	
-	static public int getBaseColor(Bitmap bitmap,int sampleCount, double[] rect)
+	static public int getBaseColor(View view,int sampleCount, double[] rect)
 	{	
 		long red=1;
 		long green=1;
 		long blue=1;
 
-		int w=bitmap.getWidth();
-		int h=bitmap.getHeight();
-		Random rand=new Random();
-		
-		int left=0;
-		int right=0;
-		int up=0;
-		int down=0;
-		if(rect!=null && rect.length>=4)
-		{
-			left=(int) (rect[0]*w);
-			up=(int) (rect[1]*h);
-			right=(int) (rect[2]*w);
-			down=(int) (rect[3]*h);
-		}
+		PixSampler sampler=new PixSampler(view,rect);
 		
 		for(int i=0; i<sampleCount; i++)
 		{
-			int x=left+rand.nextInt(w-left-right);
-			int y=up+rand.nextInt(h-up-down);
-			
-			int c=bitmap.getPixel(x, y);
+			int c=sampler.getPixRandom();
 			int ialpha=c >>> 24 ;
 			int ired=(c >> 16) & 0xFF ;
 			int igreen=(c >> 8) & 0xFF ;
@@ -244,7 +240,7 @@ public class ImageUtils {
 	
 	static public boolean nearGray(View view,int sampes,int diff, double[] rect)
 	{
-		int c=ImageUtils.getBaseColor(ImageUtils.getBitmap(view), sampes, rect);
+		int c=ImageUtils.getBaseColor(view, sampes, rect);
 		LogEx.i("near gray: "+getColor(c));
 		return ImageUtils.nearGray(c,diff);
 	}
@@ -261,7 +257,7 @@ public class ImageUtils {
 	
 	static public boolean nearRed(View view,int sampes,int diff, double[] rect)
 	{
-		int c=ImageUtils.getBaseColor(ImageUtils.getBitmap(view), sampes,rect);
+		int c=ImageUtils.getBaseColor(view, sampes,rect);
 		LogEx.i("near read: "+getColor(c));
 		return ImageUtils.nearRed(c,diff);
 	}
@@ -277,7 +273,7 @@ public class ImageUtils {
 	
 	static public boolean nearGreen(View view,int sampes,int diff, double[] rect)
 	{
-		int c=ImageUtils.getBaseColor(ImageUtils.getBitmap(view), sampes,rect);
+		int c=ImageUtils.getBaseColor(view, sampes,rect);
 		LogEx.i("near green: "+getColor(c));
 		return ImageUtils.nearGreen(c,diff);
 	}
@@ -293,10 +289,11 @@ public class ImageUtils {
 	
 	static public boolean nearBlue(View view,int sampes,int diff,  double[] rect)
 	{
-		int c=ImageUtils.getBaseColor(ImageUtils.getBitmap(view), sampes,rect);
+		int c=ImageUtils.getBaseColor(view, sampes,rect);
 		LogEx.i("near blue: "+getColor(c));
 		return ImageUtils.nearBlue(c,diff);
 	}
+	
 	static public boolean nearBlue(int c, int diff)
 	{
 		int r=(c>>16) &0xFF;
@@ -306,11 +303,7 @@ public class ImageUtils {
 		return b>=r&&b>=g;
 	}
 	
-	static public Bitmap getBitmap(View v)
-	{
-		Bitmap bitmap = Bitmap.createBitmap(v.getWidth(), v.getHeight(),Bitmap.Config.ARGB_8888);
-	    Canvas canvas = new Canvas(bitmap);
-	    v.draw(canvas);
-	    return bitmap;
-	}
+
 }
+
+
