@@ -1,5 +1,6 @@
 package com.xracoon.rato;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import android.graphics.Bitmap;
@@ -20,8 +21,14 @@ public class PixSampler {
 		this.view=view;
 		this.bitmap=getBitmap(view);
 		
-		this.rectMargin=margin;
-		this.rectCoord=margin2Coord(view.getWidth(),view.getHeight(),margin);
+		if(margin!=null && margin.length>=4)
+			this.rectMargin=margin;
+		else
+			this.rectMargin=new double[]{0,0,0,0};
+		
+		this.rectCoord=margin2Coord(view.getWidth(),view.getHeight(),this.rectMargin);
+//		LogEx.i(rectCoord+"");
+//		LogEx.i("["+rectCoord[0]+","+rectCoord[1]+","+rectCoord[2]+","+rectCoord[3]+"]");
 	}
 	
 	/**
@@ -29,7 +36,7 @@ public class PixSampler {
 	 * @param width    width of bitmap
 	 * @param height   height of bitmap
 	 * @param margin  边距值，类型为double[4]，数组中0-3元素分别为左上右下。小于1按百分比计算，大于1按像素计算。负数表示按相反的方向计算（左右相反，上下相反）。
-	 * @return  坐标范围, 类型为int[4], 数组中0-3元素分别为左上右下，4-5分别为范围区域的宽高
+	 * @return  坐标范围, 类型为int[4], 数组中0-3元素分别为左上右下边界坐标，4-5分别为范围区域的宽高
 	 */
 	private int[] margin2Coord(int w, int h, double[] margin)
 	{
@@ -37,6 +44,7 @@ public class PixSampler {
 		int right=0;
 		int up=0;
 		int down=0;
+		int[] coord=new int[]{0,0,w,h,w,h};
 		if(margin!=null && margin.length>=4)
 		{
 			if(Math.abs(margin[0])>1)
@@ -71,12 +79,13 @@ public class PixSampler {
 			//LogEx.i("width:"+w+",  height: "+h);
 			//LogEx.i("margin:  left: "+left+", top: "+up+",  right:"+right+", down:"+down);
 			
-			int [] coord=new int[]{left,up,w-right,h-down, w-right-left, h-down-up};
-			//LogEx.i("range: width: "+coord[4]+",  height: "+coord[5]);
-			LogEx.i("coord range:  left: "+coord[0]+", top: "+coord[1]+",  right:"+coord[2]+", down:"+coord[3]+"\nrange: width: "+coord[4]+",  height: "+coord[5]);
-			return coord;
+			coord=new int[]{left,up,w-right,h-down, w-right-left, h-down-up};
 		}
-		return null;
+		
+		//LogEx.i("range: width: "+coord[4]+",  height: "+coord[5]);
+		//LogEx.i("coord range:  left: "+coord[0]+", top: "+coord[1]+",  right:"+coord[2]+", down:"+coord[3]+"\nrange: width: "+coord[4]+",  height: "+coord[5]);
+		
+		return coord;
 	}
 	
 	static public Bitmap getBitmap(View v)
