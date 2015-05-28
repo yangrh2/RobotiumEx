@@ -165,6 +165,9 @@ public class SoloEx extends Solo {
 	}
 	public View[] getViews(Method method, String value,View parent, boolean scroll,long timeout, View scroller)
 	{
+		if(parent!=null)
+			scroll=false;
+		
 			if(timeout<=0)
 				timeout=Timeout.getSmallTimeout();
 			long endTime = SystemClock.uptimeMillis() + timeout;
@@ -187,7 +190,7 @@ public class SoloEx extends Solo {
 				if(parent==null)
 					list=viewFetcher.getAllViews(true);
 				else
-					list= viewFetcher.getViews(parent, true);
+					list= viewFetcher.getViews(parent);
 				
 				for (View view : list) {
 					if(!view.isShown() || view.getWidth()==0 || view.getHeight()==0)
@@ -224,6 +227,9 @@ public class SoloEx extends Solo {
 	
 	public View getView(Method method, String value,View parent, boolean scroll, long timeout, View scroller)
 	{
+			if(parent!=null)
+				scroll=false;
+		
 			if(timeout<=0)
 				timeout=Timeout.getSmallTimeout();
 			long endTime = SystemClock.uptimeMillis() + timeout;
@@ -245,7 +251,7 @@ public class SoloEx extends Solo {
 				if(parent==null)
 					list=viewFetcher.getAllViews(true);
 				else
-					list= viewFetcher.getViews(parent, true);
+					list= viewFetcher.getViews(parent);
 					
 				for (View view : list) {
 					if(!view.isShown() || view.getWidth()==0 || view.getHeight()==0)

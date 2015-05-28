@@ -222,6 +222,29 @@ class ViewFetcher {
 		return views;
 	}
 
+	
+	/**
+	 * Extracts all {@code View}s located in a parent {@code View}, recursively.
+	 *
+	 * @param parent the {@code View} whose children should be returned, or {@code null} will return empty list
+	 * @return all {@code View}s located in the parent {@code View}, never {@code null}
+	 */
+	public ArrayList<View> getViews(View parent) {
+		boolean onlySufficientlyVisible=true;
+		final ArrayList<View> views = new ArrayList<View>();
+		final View parentToUse;
+		
+		if (parent != null){
+			parentToUse = parent;
+			views.add(parentToUse);
+
+			if (parentToUse instanceof ViewGroup) {
+				addChildren(views, (ViewGroup) parentToUse, onlySufficientlyVisible);
+			}
+		}
+		return views;
+	}
+	
 	/**
 	 * Adds all children of {@code viewGroup} (recursively) into {@code views}.
 	 *
