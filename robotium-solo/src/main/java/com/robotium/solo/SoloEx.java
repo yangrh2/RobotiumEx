@@ -165,7 +165,7 @@ public class SoloEx extends Solo {
 	}
 	public View[] getViews(Method method, String value,View parent, boolean scroll,long timeout, View scroller)
 	{
-		if(parent!=null)
+		if(parent!=null && scroller==null)
 			scroll=false;
 		
 			if(timeout<=0)
@@ -227,7 +227,7 @@ public class SoloEx extends Solo {
 	
 	public View getView(Method method, String value,View parent, boolean scroll, long timeout, View scroller)
 	{
-			if(parent!=null)
+			if(parent!=null && scroller==null)
 				scroll=false;
 		
 			if(timeout<=0)
