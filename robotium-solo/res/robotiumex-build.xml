@@ -134,6 +134,7 @@
     <path id="robotium_export_libs">
         <fileset dir="${robotiumex.absolute.classpath}" casesensitive="no">
 			  <include name="xmemcached*.jar"/> 
+			  <include name="slf4j-api*.jar"/>
 			  <include name="httpunit*.jar"/> 
 			  <include name="dom4j*.jar"/>
 			  <include name="jaxen*.jar"/>
