@@ -59,7 +59,7 @@ public abstract class TestBase  {
 	}
 	
 	/**
-	 * 更新统计数据
+	 * update statics data
 	 */
 	public abstract void update();
 }

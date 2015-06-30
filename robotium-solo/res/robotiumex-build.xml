@@ -68,8 +68,8 @@
 
     <!-- compilation options -->
     <property name="java.encoding" value="UTF-8" />
-    <property name="java.target" value="1.5" />
-    <property name="java.source" value="1.5" />
+    <property name="java.target" value="1.6" />
+    <property name="java.source" value="1.6" />
     <property name="java.compilerargs" value="" />
     <property name="java.compiler.classpath" value="" />
 
@@ -133,9 +133,9 @@
     <property name="robotiumex.absolute.classpath" location="${robotiumex.classpath}" />
     <path id="robotium_export_libs">
         <fileset dir="${robotiumex.absolute.classpath}" casesensitive="no">
-			  <include name="xmemcached*.jar"/> 
+			  <include name="xmemcached*.jar"/>
 			  <include name="slf4j-api*.jar"/>
-			  <include name="httpunit*.jar"/> 
+			  <include name="httpunit*.jar"/>
 			  <include name="dom4j*.jar"/>
 			  <include name="jaxen*.jar"/>
 			  <include name="htmlparser*.jar"/>
@@ -162,12 +162,13 @@
     <property name="out.absolute.dir" location="${out.dir}" />
     <property name="out.classes.absolute.dir" location="${out.dir}/classes" />
     <property name="out.res.absolute.dir" location="${out.dir}/res" />
+     <property name="out.summary.absolute.dir" location="${out.absolute.dir}/summary" />
     <property name="out.rs.obj.absolute.dir" location="${out.dir}/rsObj" />
     <property name="out.rs.libs.absolute.dir" location="${out.dir}/rsLibs" />
     <property name="out.aidl.absolute.dir" location="${out.dir}/aidl" />
     <property name="out.dexed.absolute.dir" location="${out.dir}/dexedLibs" />
     <property name="out.manifest.abs.file" location="${out.dir}/AndroidManifest.xml" />
-	<property name="out.testsuitefile"  location="${asset.absolute.dir}/testsuite.xml"/>
+	<property name="out.testsuitefile"  location="${out.summary.absolute.dir}/testsuite.xml"/>
     
     
     <!-- tools location -->
@@ -334,6 +335,8 @@
                     buildType="${build.is.packaging.debug}/${build.is.signing.debug}">
                 <dex path="${intermediate.dex.file}"/>
                 <sourcefolder path="${source.absolute.dir}"/>
+                <sourcefolder path="${robotiumex.absolute.dir}"/>
+                <sourcefolder path="${out.summary.absolute.dir}"/>  
                 <jarfile refid="project.all.jars.path" />
                 <nativefolder path="${native.libs.absolute.dir}" />
                 <nativefolder refid="project.library.native.folder.path" />
@@ -341,10 +344,6 @@
                 <nativefolder path="${out.rs.libs.absolute.dir}" />
                 <extra-jars/>
             </apkbuilder>
-            <!-- aapt add -v ${out.packaged.file} out.testsuitefile -->
-<!--             <exec executable="${aapt}">
-                   <arg line="add -v ${out.packaged.file} ${out.testsuitefile}"/>
-            </exec> -->
         </sequential>
     </macrodef>
 
@@ -465,10 +464,11 @@
     <!-- clean target -->
     <target name="clean" depends="-setup, -pre-clean"
             description="Removes output files created by other targets.">
-        <delete file="${out.testsuitefile}" verbose="${verbose}" />
         <delete dir="${out.absolute.dir}" verbose="${verbose}" />
         <delete dir="${gen.absolute.dir}" verbose="${verbose}" />
-
+        <delete dir="${out.summary.absolute.dir}" verbose="${verbose}" />
+	
+        
         <!-- if we know about a tested project or libraries, we clean them too. -->
         <if condition="${project.is.test}">
             <then>
@@ -579,6 +579,7 @@
         <!-- TX  <mkdir dir="${jar.libs.absolute.dir}" /> -->
         <mkdir dir="${out.absolute.dir}" />
         <mkdir dir="${out.res.absolute.dir}" />
+        <mkdir dir="${out.summary.absolute.dir}"/>
         <mkdir dir="${out.rs.obj.absolute.dir}" />
         <mkdir dir="${out.rs.libs.absolute.dir}" />
         <do-only-if-manifest-hasCode>
@@ -1011,11 +1012,16 @@
                         <extra-jars>
                             <!-- Injected from external file -->
                             <jarfile path="${emma.dir}/emma_device.jar" />
+                            <jarfile refid="robotium_export_libs"/>
                         </extra-jars>
                     </package-helper>
                 </then>
                 <else>
-                    <package-helper />
+                   <package-helper>
+                     <extra-jars>
+			                <jarfile refid="robotium_export_libs"/>
+                       </extra-jars> 
+                   </package-helper>
                 </else>
             </if>
         </do-only-if-not-library>
@@ -1130,6 +1136,7 @@
             <and>
                 <isset property="build.is.mode.release" />
                 <isset property="proguard.config" />
+                <isset property="force-close-proguard" />
             </and>
         </condition>
         <if condition="${proguard.enabled}">
